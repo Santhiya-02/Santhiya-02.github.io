@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name - Interactive Resume</title>
+    <meta name="description" content="Interactive AI-powered resume showcasing skills, experience, and projects">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/custom.css">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366F1',
+                        secondary: '#1F2937',
+                        accent: '#F59E0B',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-900">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-gray-900/70 backdrop-blur border-b border-indigo-600/20 shadow-lg z-50 text-gray-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="text-2xl font-bold text-indigo-300">Your Name</div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#about" class="nav-link text-gray-300 hover:text-indigo-300 transition-colors">About</a>
+                    <a href="#experience" class="nav-link text-gray-300 hover:text-indigo-300 transition-colors">Experience</a>
+                    <a href="#projects" class="nav-link text-gray-300 hover:text-indigo-300 transition-colors">Projects</a>
+                    <a href="#skills" class="nav-link text-gray-300 hover:text-indigo-300 transition-colors">Skills</a>
+                    <a href="#contact" class="nav-link text-gray-300 hover:text-indigo-300 transition-colors">Contact</a>
+                    <button id="chat-toggle" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-500 transition-colors">
+                        <i class="fas fa-comments mr-2"></i>Chat with Resume
+                    </button>
+                </div>
+                <!-- Mobile menu button -->
+                <button id="mobile-menu-toggle" class="md:hidden text-gray-300">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="md:hidden hidden pb-4">
+                <div class="flex flex-col space-y-2">
+                    <a href="#about" class="nav-link text-gray-300 hover:text-indigo-300 transition-colors py-2">About</a>
+                    <a href="#experience" class="nav-link text-gray-300 hover:text-indigo-300 transition-colors py-2">Experience</a>
+                    <a href="#projects" class="nav-link text-gray-300 hover:text-indigo-300 transition-colors py-2">Projects</a>
+                    <a href="#skills" class="nav-link text-gray-300 hover:text-indigo-300 transition-colors py-2">Skills</a>
+                    <a href="#contact" class="nav-link text-gray-300 hover:text-indigo-300 transition-colors py-2">Contact</a>
+                    <button id="chat-toggle-mobile" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-500 transition-colors text-left">
+                        <i class="fas fa-comments mr-2"></i>Chat with Resume
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="about" class="pt-24 pb-16 text-white relative overflow-hidden">
+        <!-- starfield layer injected by JS -->
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h1 class="text-5xl font-bold mb-6 text-indigo-200">Your Name</h1>
+                    <h2 class="text-2xl text-indigo-300 mb-6">Software Engineer & AI Enthusiast</h2>
+                    <p class="text-lg text-indigo-200 mb-8 leading-relaxed">
+                        Passionate developer with expertise in full-stack development, machine learning, 
+                        and building scalable applications. Always eager to learn new technologies and 
+                        solve complex problems.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#contact" class="bg-accent text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition-colors">
+                            <i class="fas fa-envelope mr-2"></i>Get In Touch
+                        </a>
+                        <a href="#projects" class="border-2 border-indigo-300 text-indigo-200 px-6 py-3 rounded-lg hover:bg-indigo-300 hover:text-gray-900 transition-colors">
+                            <i class="fas fa-code mr-2"></i>View Projects
+                        </a>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div class="w-64 h-64 mx-auto rounded-full flex items-center justify-center space-card">
+                        <i class="fas fa-user-astronaut text-8xl text-indigo-200"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Story Forge Section -->
+    <section id="story" class="py-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center mb-12 text-indigo-200">Story Forge</h2>
+            <p class="text-center text-indigo-200 mb-8">Drag skills and projects into the forge to craft a personalized career story.</p>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Draggable Items -->
+                <div class="space-card p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold text-indigo-200 mb-4">Draggable Items</h3>
+                    <p class="text-indigo-200 text-sm mb-3">Drag any of the items below into the dropzone to the right.</p>
+                    <div class="mb-4">
+                        <h4 class="text-indigo-300 font-medium mb-2">Skills</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="glow-pill px-3 py-1 rounded text-sm" data-draggable="true" data-item="JavaScript">JavaScript</span>
+                            <span class="glow-pill px-3 py-1 rounded text-sm" data-draggable="true" data-item="Python">Python</span>
+                            <span class="glow-pill px-3 py-1 rounded text-sm" data-draggable="true" data-item="React">React</span>
+                            <span class="glow-pill px-3 py-1 rounded text-sm" data-draggable="true" data-item="Node.js">Node.js</span>
+                            <span class="glow-pill px-3 py-1 rounded text-sm" data-draggable="true" data-item="AWS">AWS</span>
+                            <span class="glow-pill px-3 py-1 rounded text-sm" data-draggable="true" data-item="Docker">Docker</span>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <h4 class="text-indigo-300 font-medium mb-2">Projects</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="glow-pill px-3 py-1 rounded text-sm" data-draggable="true" data-item="E-Commerce Platform">E-Commerce Platform</span>
+                            <span class="glow-pill px-3 py-1 rounded text-sm" data-draggable="true" data-item="AI Chatbot">AI Chatbot</span>
+                            <span class="glow-pill px-3 py-1 rounded text-sm" data-draggable="true" data-item="Task Management App">Task Management App</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dropzone and Output -->
+                <div class="space-card p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold text-indigo-200 mb-4">Forge</h3>
+                    <div id="story-dropzone" class="border border-indigo-700/30 rounded p-4 mb-4 min-h-[120px] flex items-center justify-center text-indigo-300">
+                        Drop items here
+                    </div>
+                    <div class="mb-4">
+                        <div class="text-indigo-300 text-sm mb-2">Selected:</div>
+                        <div id="selected-items"></div>
+                    </div>
+                    <button id="forge-story" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-indigo-500 transition-colors">
+                        <i class="fas fa-wand-magic-sparkles mr-2"></i>Generate Career Story
+                    </button>
+                    <div class="mt-4 bg-gray-900/60 border border-indigo-700/30 rounded p-4 text-indigo-100" id="story-output"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience" class="py-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center mb-12 text-indigo-200">Professional Experience</h2>
+            
+            <div class="space-y-8">
+                <!-- Experience Item 1 -->
+                <div class="space-card p-6 rounded-lg transition-shadow">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-4">
+                        <div>
+                            <h3 class="text-xl font-semibold text-indigo-200">Senior Software Engineer</h3>
+                            <p class="text-indigo-300 font-medium">Tech Company Inc.</p>
+                        </div>
+                        <span class="text-indigo-300 text-sm mt-2 md:mt-0">2022 - Present</span>
+                    </div>
+                    <div class="mb-4">
+                        <p class="text-indigo-100 leading-relaxed">
+                            Led development of microservices architecture serving 100k+ users. 
+                            Implemented CI/CD pipelines reducing deployment time by 60%. 
+                            Mentored junior developers and conducted code reviews.
+                        </p>
+                        <div class="mt-3">
+                            <button class="read-more-btn text-indigo-300 hover:text-indigo-200 transition-colors text-sm">
+                                Read More <i class="fas fa-chevron-down ml-1"></i>
+                            </button>
+                            <div class="read-more-content hidden mt-3 text-indigo-100">
+                                <p>• Architected and developed RESTful APIs using Node.js and Express</p>
+                                <p>• Implemented automated testing achieving 90% code coverage</p>
+                                <p>• Collaborated with cross-functional teams to deliver features on time</p>
+                                <p>• Optimized database queries resulting in 40% performance improvement</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="glow-pill px-3 py-1 rounded-full text-sm">JavaScript</span>
+                        <span class="glow-pill px-3 py-1 rounded-full text-sm">Node.js</span>
+                        <span class="glow-pill px-3 py-1 rounded-full text-sm">React</span>
+                        <span class="glow-pill px-3 py-1 rounded-full text-sm">AWS</span>
+                        <span class="glow-pill px-3 py-1 rounded-full text-sm">Docker</span>
+                    </div>
+                </div>
+
+                <!-- Experience Item 2 -->
+                <div class="space-card p-6 rounded-lg transition-shadow">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-4">
+                        <div>
+                            <h3 class="text-xl font-semibold text-indigo-200">Full Stack Developer</h3>
+                            <p class="text-indigo-300 font-medium">StartupXYZ</p>
+                        </div>
+                        <span class="text-indigo-300 text-sm mt-2 md:mt-0">2020 - 2022</span>
+                    </div>
+                    <div class="mb-4">
+                        <p class="text-indigo-100 leading-relaxed">
+                            Developed full-stack web applications from concept to deployment. 
+                            Built responsive frontend interfaces and robust backend services. 
+                            Integrated third-party APIs and payment systems.
+                        </p>
+                        <div class="mt-3">
+                            <button class="read-more-btn text-indigo-300 hover:text-indigo-200 transition-colors text-sm">
+                                Read More <i class="fas fa-chevron-down ml-1"></i>
+                            </button>
+                            <div class="read-more-content hidden mt-3 text-indigo-100">
+                                <p>• Built responsive web applications using React and Vue.js</p>
+                                <p>• Developed REST APIs using Python Flask and Django</p>
+                                <p>• Managed PostgreSQL databases and implemented data migrations</p>
+                                <p>• Deployed applications on cloud platforms (AWS, Heroku)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="glow-pill px-3 py-1 rounded-full text-sm">Python</span>
+                        <span class="glow-pill px-3 py-1 rounded-full text-sm">React</span>
+                        <span class="glow-pill px-3 py-1 rounded-full text-sm">Vue.js</span>
+                        <span class="glow-pill px-3 py-1 rounded-full text-sm">PostgreSQL</span>
+                        <span class="glow-pill px-3 py-1 rounded-full text-sm">Git</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center mb-12 text-indigo-200">Featured Projects</h2>
+            
+            <!-- Project Filters -->
+            <div class="flex flex-wrap justify-center gap-4 mb-8">
+                <button class="project-filter active bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary transition-colors" data-filter="all">
+                    All Projects
+                </button>
+                <button class="project-filter bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors" data-filter="web">
+                    Web Development
+                </button>
+                <button class="project-filter bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors" data-filter="ai">
+                    AI/ML
+                </button>
+                <button class="project-filter bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors" data-filter="mobile">
+                    Mobile
+                </button>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project 1 -->
+                <div class="project-item space-card p-6 rounded-lg transition-shadow" data-category="web">
+                    <div class="mb-4">
+                        <h3 class="text-xl font-semibold text-indigo-200 mb-2">E-Commerce Platform</h3>
+                        <p class="text-indigo-100 text-sm mb-4">A full-stack e-commerce solution with payment integration and admin dashboard.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="glow-pill px-2 py-1 rounded text-sm">React</span>
+                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">Node.js</span>
+                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">MongoDB</span>
+                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">Stripe</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="#" class="text-indigo-300 hover:text-indigo-200 transition-colors">
+                            <i class="fab fa-github mr-1"></i>Code
+                        </a>
+                        <a href="#" class="text-primary hover:text-secondary transition-colors">
+                            <i class="fas fa-external-link-alt mr-1"></i>Live Demo
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="project-item space-card p-6 rounded-lg transition-shadow" data-category="ai">
+                    <div class="mb-4">
+                        <h3 class="text-xl font-semibold text-indigo-200 mb-2">AI Chatbot</h3>
+                        <p class="text-indigo-100 text-sm mb-4">Intelligent chatbot using natural language processing and machine learning.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">Python</span>
+                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">TensorFlow</span>
+                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">NLP</span>
+                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">Flask</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="#" class="text-primary hover:text-secondary transition-colors">
+                            <i class="fab fa-github mr-1"></i>Code
+                        </a>
+                        <a href="#" class="text-primary hover:text-secondary transition-colors">
+                            <i class="fas fa-external-link-alt mr-1"></i>Live Demo
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Project 3 -->
+                <div class="project-item space-card p-6 rounded-lg transition-shadow" data-category="mobile">
+                    <div class="mb-4">
+                        <h3 class="text-xl font-semibold text-indigo-200 mb-2">Task Management App</h3>
+                        <p class="text-indigo-100 text-sm mb-4">Cross-platform mobile app for productivity and task management.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">React Native</span>
+                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">Firebase</span>
+                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">Redux</span>
+                        <span class="bg-gray-100 text-gray-700 px-2 py-1 rounded text-sm">TypeScript</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="#" class="text-primary hover:text-secondary transition-colors">
+                            <i class="fab fa-github mr-1"></i>Code
+                        </a>
+                        <a href="#" class="text-primary hover:text-secondary transition-colors">
+                            <i class="fas fa-external-link-alt mr-1"></i>Live Demo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center mb-12 text-indigo-200">Technical Skills</h2>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Programming Languages -->
+                <div class="text-center space-card p-6 rounded-lg">
+                    <div class="text-indigo-200 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-code text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Languages</h3>
+                    <div class="space-y-2">
+                        <div class="glow-pill p-2 rounded">JavaScript</div>
+                        <div class="bg-gray-100 p-2 rounded">Python</div>
+                        <div class="bg-gray-100 p-2 rounded">TypeScript</div>
+                        <div class="bg-gray-100 p-2 rounded">Java</div>
+                    </div>
+                </div>
+
+                <!-- Frontend -->
+                <div class="text-center space-card p-6 rounded-lg">
+                    <div class="text-indigo-200 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-paint-brush text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Frontend</h3>
+                    <div class="space-y-2">
+                        <div class="glow-pill p-2 rounded">React</div>
+                        <div class="bg-gray-100 p-2 rounded">Vue.js</div>
+                        <div class="bg-gray-100 p-2 rounded">Tailwind CSS</div>
+                        <div class="bg-gray-100 p-2 rounded">HTML5/CSS3</div>
+                    </div>
+                </div>
+
+                <!-- Backend -->
+                <div class="text-center space-card p-6 rounded-lg">
+                    <div class="text-indigo-200 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-server text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Backend</h3>
+                    <div class="space-y-2">
+                        <div class="glow-pill p-2 rounded">Node.js</div>
+                        <div class="bg-gray-100 p-2 rounded">Express</div>
+                        <div class="bg-gray-100 p-2 rounded">Django</div>
+                        <div class="bg-gray-100 p-2 rounded">FastAPI</div>
+                    </div>
+                </div>
+
+                <!-- Tools & Technologies -->
+                <div class="text-center space-card p-6 rounded-lg">
+                    <div class="text-indigo-200 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-tools text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Tools</h3>
+                    <div class="space-y-2">
+                        <div class="glow-pill p-2 rounded">Git</div>
+                        <div class="bg-gray-100 p-2 rounded">Docker</div>
+                        <div class="bg-gray-100 p-2 rounded">AWS</div>
+                        <div class="bg-gray-100 p-2 rounded">MongoDB</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-16 bg-gray-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center mb-12 text-gray-800">Get In Touch</h2>
+            
+            <div class="grid md:grid-cols-2 gap-12">
+                <div>
+                    <h3 class="text-2xl font-semibold mb-6 text-gray-800">Let's Connect</h3>
+                    <p class="text-gray-600 mb-8 leading-relaxed">
+                        I'm always interested in new opportunities and exciting projects. 
+                        Whether you have a question or just want to say hi, feel free to reach out!
+                    </p>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-primary text-xl mr-4"></i>
+                            <span class="text-gray-700">your.email@example.com</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-phone text-primary text-xl mr-4"></i>
+                            <span class="text-gray-700">+1 (555) 123-4567</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-map-marker-alt text-primary text-xl mr-4"></i>
+                            <span class="text-gray-700">Your City, Country</span>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-4 mt-8">
+                        <a href="#" class="bg-gray-800 text-white p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                            <i class="fab fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="bg-blue-400 text-white p-3 rounded-lg hover:bg-blue-500 transition-colors">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <form class="space-y-6">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                            <input type="text" id="name" name="name" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" id="email" name="email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                        </div>
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                            <textarea id="message" name="message" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-primary text-white py-3 px-6 rounded-lg hover:bg-secondary transition-colors">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chat Modal -->
+    <div id="chat-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl h-96 flex flex-col">
+                <!-- Chat Header -->
+                <div class="bg-primary text-white p-4 rounded-t-lg flex justify-between items-center">
+                    <h3 class="text-lg font-semibold">
+                        <i class="fas fa-robot mr-2"></i>Chat with My Resume
+                    </h3>
+                    <button id="close-chat" class="text-white hover:text-gray-200">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Chat Messages -->
+                <div id="chat-messages" class="flex-1 p-4 overflow-y-auto bg-gray-50">
+                    <div class="mb-4">
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <p class="text-sm text-gray-600">Hi! I'm your AI assistant. Ask me anything about my resume, skills, or experience!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chat Input -->
+                <div class="p-4 border-t">
+                    <div class="flex gap-2">
+                        <input type="text" id="chat-input" placeholder="Ask about my experience, skills, or projects..." 
+                               class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                        <button id="send-message" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-secondary transition-colors">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p>&copy; 2024 Your Name. All rights reserved.</p>
+            <p class="text-gray-400 mt-2">Built with ❤️ using HTML, Tailwind CSS, and AI</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="assets/js/dataLoader.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/chat.js"></script>
+    <script src="assets/js/drag.js"></script>
+    <script src="assets/js/rag.js"></script>
+
+    <!-- Floating Chatbot Widget -->
+    <div class="chatbot-widget">
+        <div id="chatbot-panel" class="chatbot-panel hidden">
+            <div class="p-3 border-b border-indigo-700/30 text-indigo-200 flex items-center justify-between">
+                <span class="font-semibold"><i class="fas fa-robot mr-2"></i>Assistant</span>
+                <button onclick="document.getElementById('chatbot-panel').classList.add('hidden')" class="text-indigo-300 hover:text-indigo-100"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-3" style="max-height: 48vh; overflow:auto">
+                <div class="text-sm text-indigo-200 mb-2">Ask about my skills, projects, and experience.</div>
+                <div id="chatbot-messages" class="space-y-2"></div>
+            </div>
+            <div class="p-3 border-t border-indigo-700/30">
+                <div class="flex gap-2">
+                    <input id="chatbot-input" type="text" class="flex-1 px-3 py-2 rounded bg-gray-800 text-indigo-100 border border-indigo-700/30" placeholder="Type a question..." />
+                    <button id="chatbot-send" class="chatbot-button"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+        <button id="chatbot-toggle" class="chatbot-button"><i class="fas fa-comments"></i></button>
+    </div>
+
+    <script>
+    // Minimal widget wiring that reuses ChatModule where possible
+    (function() {
+        var toggle = document.getElementById('chatbot-toggle');
+        var panel = document.getElementById('chatbot-panel');
+        var send = document.getElementById('chatbot-send');
+        var input = document.getElementById('chatbot-input');
+        var messages = document.getElementById('chatbot-messages');
+
+        function appendBubble(text, role) {
+            var div = document.createElement('div');
+            div.className = role === 'user' ? 'text-right' : 'text-left';
+            var bubble = document.createElement('div');
+            bubble.className = 'inline-block max-w-[85%] text-sm px-3 py-2 rounded ' + (role==='user' ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-indigo-100');
+            bubble.textContent = text;
+            div.appendChild(bubble);
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function typing(on) {
+            if (on) {
+                var t = document.createElement('div');
+                t.id = 'cb-typing';
+                t.className = 'text-left';
+                var b = document.createElement('div');
+                b.className = 'inline-block px-3 py-2 rounded bg-gray-800 text-indigo-100';
+                b.textContent = 'Typing...';
+                t.appendChild(b);
+                messages.appendChild(t);
+                messages.scrollTop = messages.scrollHeight;
+            } else {
+                var el = document.getElementById('cb-typing');
+                if (el) el.remove();
+            }
+        }
+
+        function sendMsg() {
+            var q = input.value.trim();
+            if (!q) return;
+            input.value = '';
+            appendBubble(q, 'user');
+            typing(true);
+            var ctx = (window.RAGModule && window.RAGModule.retrieveRelevantContext) ? window.RAGModule.retrieveRelevantContext(q) : '';
+            if (!ctx) {
+                typing(false);
+                appendBubble("That’s something I’m working on and will update in future.", 'assistant');
+                return;
+            }
+            if (window.API && window.API.callGeminiProxy) {
+                window.API.callGeminiProxy(q, ctx).then(function(r){ typing(false); appendBubble(r, 'assistant'); }).catch(function(){ typing(false); appendBubble('Sorry, error occurred.', 'assistant'); });
+            } else if (window.RAGModule && window.RAGModule.generateRAGResponse) {
+                window.RAGModule.generateRAGResponse(q).then(function(r){ typing(false); appendBubble(r, 'assistant'); }).catch(function(){ typing(false); appendBubble('Sorry, error occurred.', 'assistant'); });
+            } else {
+                typing(false);
+                appendBubble('Assistant unavailable.', 'assistant');
+            }
+        }
+
+        if (toggle) toggle.addEventListener('click', function() { panel.classList.toggle('hidden'); });
+        if (send) send.addEventListener('click', sendMsg);
+        if (input) input.addEventListener('keypress', function(e){ if (e.key === 'Enter') { e.preventDefault(); sendMsg(); }});
+
+        // Initialize drag model once DOM is ready
+        if (window.DragModel && typeof window.DragModel.init === 'function') {
+            window.DragModel.init();
+        }
+    })();
+    </script>
+</body>
+</html>

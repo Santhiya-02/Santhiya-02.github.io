@@ -1,0 +1,77 @@
+{
+  "personalInfo": {
+    "name": "Your Name",
+    "title": "Software Engineer & AI Enthusiast",
+    "email": "your.email@example.com",
+    "phone": "+1 (555) 123-4567",
+    "location": "Your City, Country",
+    "summary": "Passionate developer with expertise in full-stack development, machine learning, and building scalable applications. Always eager to learn new technologies and solve complex problems."
+  },
+  "experience": [
+    {
+      "title": "Senior Software Engineer",
+      "company": "Tech Company Inc.",
+      "period": "2022 - Present",
+      "description": "Led development of microservices architecture serving 100k+ users. Implemented CI/CD pipelines reducing deployment time by 60%. Mentored junior developers and conducted code reviews.",
+      "details": [
+        "Architected and developed RESTful APIs using Node.js and Express",
+        "Implemented automated testing achieving 90% code coverage",
+        "Collaborated with cross-functional teams to deliver features on time",
+        "Optimized database queries resulting in 40% performance improvement"
+      ],
+      "technologies": ["JavaScript", "Node.js", "React", "AWS", "Docker"]
+    },
+    {
+      "title": "Full Stack Developer",
+      "company": "StartupXYZ",
+      "period": "2020 - 2022",
+      "description": "Developed full-stack web applications from concept to deployment. Built responsive frontend interfaces and robust backend services. Integrated third-party APIs and payment systems.",
+      "details": [
+        "Built responsive web applications using React and Vue.js",
+        "Developed REST APIs using Python Flask and Django",
+        "Managed PostgreSQL databases and implemented data migrations",
+        "Deployed applications on cloud platforms (AWS, Heroku)"
+      ],
+      "technologies": ["Python", "React", "Vue.js", "PostgreSQL", "Git"]
+    }
+  ],
+  "projects": [
+    {
+      "name": "E-Commerce Platform",
+      "category": "web",
+      "description": "A full-stack e-commerce solution with payment integration and admin dashboard.",
+      "technologies": ["React", "Node.js", "MongoDB", "Stripe"],
+      "details": "Built a complete e-commerce platform with user authentication, product management, shopping cart, and payment processing using Stripe API."
+    },
+    {
+      "name": "AI Chatbot",
+      "category": "ai",
+      "description": "Intelligent chatbot using natural language processing and machine learning.",
+      "technologies": ["Python", "TensorFlow", "NLP", "Flask"],
+      "details": "Developed an AI-powered chatbot that can understand and respond to user queries using natural language processing techniques."
+    },
+    {
+      "name": "Task Management App",
+      "category": "mobile",
+      "description": "Cross-platform mobile app for productivity and task management.",
+      "technologies": ["React Native", "Firebase", "Redux", "TypeScript"],
+      "details": "Created a mobile application for task management with real-time synchronization and offline capabilities."
+    }
+  ],
+  "skills": {
+    "languages": ["JavaScript", "Python", "TypeScript", "Java"],
+    "frontend": ["React", "Vue.js", "Tailwind CSS", "HTML5/CSS3"],
+    "backend": ["Node.js", "Express", "Django", "FastAPI"],
+    "tools": ["Git", "Docker", "AWS", "MongoDB"]
+  },
+  "education": [
+    {
+      "degree": "Bachelor of Science in Computer Science",
+      "institution": "University Name",
+      "year": "2016 - 2020",
+      "details": "Graduated with honors, focusing on software engineering and artificial intelligence."
+    }
+  ]
+}
+
+
