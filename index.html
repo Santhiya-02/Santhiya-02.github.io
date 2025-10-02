@@ -322,8 +322,9 @@
                 </div>
             </div>
         </div>
-        <button id="chatbot-toggle" class="bg-indigo-600 text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-500 transition-colors">
-            <i class="fas fa-comments text-2xl"></i>
+        <button id="chatbot-toggle" class="bg-indigo-600 text-white px-5 py-4 rounded-full flex items-center justify-center shadow-lg hover:bg-indigo-500 transition-colors gap-3">
+            <i class="fas fa-rocket text-xl"></i>
+            <span class="font-semibold text-lg">Know About Me</span>
         </button>
     </div>
 
@@ -405,21 +406,28 @@
 
         // Step 2: Implement the "Retriever"
         function retrieveContext(question) {
-            // A simple keyword-based retriever. For our purpose, if a keyword matches,
-            // we'll return the full resume data as context. A more advanced version
-            // could return specific sections.
-            const cleanQuestion = question.toLowerCase().replace(/[^\w\s]/g, ''); // <-- ADDED THIS LINE to remove punctuation
+            const cleanQuestion = question.toLowerCase().replace(/[^\w\s]/g, '');
             const simplifiedQuestion = cleanQuestion.split(/\s+/);
             const dataAsString = JSON.stringify(resumeData).toLowerCase();
-            
             const hasKeyword = simplifiedQuestion.some(keyword => dataAsString.includes(keyword));
-
             if (hasKeyword) {
-                // Return the whole resume data as a string for the LLM to process.
                 return JSON.stringify(resumeData);
             }
-            // Return null if no keywords are found. The chatbot can handle this gracefully.
             return null; 
+        }
+
+        // NEW: Demo Mode function
+        function getDemoResponse(question) {
+             const q = question.toLowerCase();
+             if (q.includes('skill')) {
+                 return "Santhiya is skilled in languages like C, Java, Python, and JavaScript, databases like MySQL, and platforms such as AWS, Git, and Docker.";
+             } else if (q.includes('project')) {
+                 return "She has worked on several projects, including an IoT Agriculture Monitoring System, an Autonomous Line Follower Robot, and a Weapon Detection Model using deep learning.";
+             } else if (q.includes('contact') || q.includes('email')) {
+                 return "You can contact Santhiya via email at santhiyasasikumar0205@gmail.com or connect on LinkedIn.";
+             } else {
+                 return "That's a great question! I'm currently running in demo mode, but I'd be happy to talk about her skills, projects, or experience.";
+             }
         }
 
         // Step 3: Call the Gemini API and Handle Chat Logic
@@ -433,21 +441,21 @@
             messageElement.textContent = message;
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
-            return messageElement; // Return the created element
+            return messageElement;
         }
 
         async function callGeminiAPI(question, context) {
-            const apiKey = ""; // Canvas will provide the key
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            // NOTE: This will fail with a 403 error until the API key is configured.
+            // The code will fall back to Demo Mode.
+            const apiKey = ""; 
+            if (!apiKey) return null; // Immediately return null if key is missing
 
-            // We construct a detailed prompt for the LLM.
-            const systemPrompt = `You are a helpful and professional AI assistant for Santhiya Sasikumar's interactive resume. Your personality is friendly and encouraging. Based ONLY on the provided JSON data about her, answer the user's question. Do not make up any information. Keep your answers concise and to the point. The data is: ${context}`;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            const systemPrompt = `You are a helpful and professional AI assistant for Santhiya Sasikumar's interactive resume. Based ONLY on the provided JSON data about her, answer the user's question. Do not make up any information. Keep your answers concise. The data is: ${context}`;
             
             const payload = {
                 contents: [{ parts: [{ text: question }] }],
-                systemInstruction: {
-                    parts: [{ text: systemPrompt }]
-                },
+                systemInstruction: { parts: [{ text: systemPrompt }] },
             };
 
             try {
@@ -456,19 +464,15 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-
                 if (!response.ok) {
-                    // Provide more detailed error feedback
                     console.error("API Error Response:", response.status, await response.text());
-                    return `Sorry, I'm having trouble connecting (Error ${response.status}). Please try again later.`;
+                    return null; // Return null on API error to trigger demo mode
                 }
-
                 const result = await response.json();
-                // Safe navigation to prevent errors if the response structure is unexpected
                 return result?.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process that request.";
             } catch (error) {
                 console.error("Error calling Gemini API:", error);
-                return "Sorry, an error occurred while trying to get a response.";
+                return null; // Return null on network error
             }
         }
 
@@ -479,27 +483,32 @@
             addMessageToChat(question, 'user');
             chatInput.value = '';
             
-            // Show a typing indicator and give it a unique class
             const typingIndicator = addMessageToChat("Typing...", 'ai');
             typingIndicator.classList.add('typing-indicator');
             
             const context = retrieveContext(question);
-
             let aiResponse;
+
             if (context) {
-                // If context is found, call the LLM
+                // First, try to call the real API
                 aiResponse = await callGeminiAPI(question, context);
+                
+                // If the API call fails (returns null), fall back to Demo Mode
+                if (aiResponse === null) {
+                    aiResponse = getDemoResponse(question);
+                }
             } else {
-                // If no context is found, use the fallback response
                 aiResponse = "That's a great question! It seems that's not covered in my current knowledge base, which means it's a new area for Santhiya to explore and add to her resume soon!";
             }
             
-            // Remove the specific typing indicator and show the real response
             const typingIndicatorInChat = chatMessages.querySelector('.typing-indicator');
             if (typingIndicatorInChat) {
                 typingIndicatorInChat.remove();
             }
-            addMessageToChat(aiResponse, 'ai');
+            // Add a small delay to make the demo mode feel more natural
+            setTimeout(() => {
+                addMessageToChat(aiResponse, 'ai');
+            }, 500);
         }
 
         chatSendBtn.addEventListener('click', handleSendMessage);
@@ -658,9 +667,5 @@
     </script>
 </body>
 </html>
-
-
-
-
 
 
