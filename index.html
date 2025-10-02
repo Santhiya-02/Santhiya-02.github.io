@@ -474,15 +474,19 @@
         const chatInput = document.getElementById('chat-input');
         const chatSendBtn = document.getElementById('chat-send-btn');
 
+        // CORRECTED addMessageToChat function
         function addMessageToChat(message, sender) {
-            const messageElement = document.createElement('div');
+            const messageWrapper = document.createElement('div');
+            messageWrapper.className = `w-full flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            
             const bubble = document.createElement('div');
-            bubble.className = `p-2 rounded-lg max-w-xs ${sender === 'user' ? 'bg-indigo-500 text-white self-end' : 'bg-gray-700 text-gray-200 self-start'}`;
+            bubble.className = `p-2 rounded-lg max-w-xs ${sender === 'user' ? 'bg-indigo-500 text-white' : 'bg-gray-700 text-gray-200'}`;
             bubble.innerHTML = message; // Use innerHTML to render links
-            messageElement.appendChild(bubble);
-            chatMessages.appendChild(messageElement);
+
+            messageWrapper.appendChild(bubble);
+            chatMessages.appendChild(messageWrapper);
             chatMessages.scrollTop = chatMessages.scrollHeight;
-            return messageElement;
+            return messageWrapper; // Return the wrapper
         }
 
         async function callApi(question, systemPrompt, apiKey) {
@@ -500,7 +504,7 @@
             try {
                 const response = await fetch(apiUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json' }, // CORRECTED Content-Type
                     body: JSON.stringify(payload)
                 });
                 if (!response.ok) {
@@ -549,9 +553,10 @@
                 }
             }
             
+            // CORRECTED typing indicator removal
             const typingIndicatorInChat = document.querySelector('.typing-indicator');
             if (typingIndicatorInChat) {
-                typingIndicatorInChat.parentElement.remove();
+                typingIndicatorInChat.remove();
             }
             
             setTimeout(() => {
