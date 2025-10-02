@@ -403,6 +403,107 @@
             ]
         };
 
+        // Step 2: Implement the "Retriever"
+        function retrieveContext(question) {
+            // A simple keyword-based retriever. For our purpose, if a keyword matches,
+            // we'll return the full resume data as context. A more advanced version
+            // could return specific sections.
+            const simplifiedQuestion = question.toLowerCase().split(/\s+/);
+            const dataAsString = JSON.stringify(resumeData).toLowerCase();
+            
+            const hasKeyword = simplifiedQuestion.some(keyword => dataAsString.includes(keyword));
+
+            if (hasKeyword) {
+                // Return the whole resume data as a string for the LLM to process.
+                return JSON.stringify(resumeData);
+            }
+            // Return null if no keywords are found. The chatbot can handle this gracefully.
+            return null; 
+        }
+
+        // Step 3: Call the Gemini API and Handle Chat Logic
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const chatSendBtn = document.getElementById('chat-send-btn');
+
+        function addMessageToChat(message, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `p-2 rounded-lg max-w-xs ${sender === 'user' ? 'bg-indigo-500 text-white self-end' : 'bg-gray-700 text-gray-200 self-start'}`;
+            messageElement.textContent = message;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function callGeminiAPI(question, context) {
+            const apiKey = ""; // Canvas will provide the key
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            // We construct a detailed prompt for the LLM.
+            const systemPrompt = `You are a helpful and professional AI assistant for Santhiya Sasikumar's interactive resume. Your personality is friendly and encouraging. Based ONLY on the provided JSON data about her, answer the user's question. Do not make up any information. Keep your answers concise and to the point. The data is: ${context}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: question }] }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    console.error("API Error Response:", await response.text());
+                    return "Sorry, I'm having a little trouble connecting to my brain right now. Please try again in a moment.";
+                }
+
+                const result = await response.json();
+                return result.candidates[0].content.parts[0].text;
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                return "Sorry, an error occurred while trying to get a response.";
+            }
+        }
+
+        async function handleSendMessage() {
+            const question = chatInput.value.trim();
+            if (!question) return;
+
+            addMessageToChat(question, 'user');
+            chatInput.value = '';
+            
+            // Show a typing indicator
+            addMessageToChat("Typing...", 'ai-typing');
+            
+            const context = retrieveContext(question);
+
+            let aiResponse;
+            if (context) {
+                // If context is found, call the LLM
+                aiResponse = await callGeminiAPI(question, context);
+            } else {
+                // If no context is found, use the fallback response you wanted
+                aiResponse = "That's a great question! It seems that's not covered in my current knowledge base, which means it's a new area for Santhiya to explore and add to her resume soon!";
+            }
+            
+            // Remove typing indicator and show the real response
+            const typingIndicator = Array.from(chatMessages.children).find(child => child.textContent === "Typing...");
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+            addMessageToChat(aiResponse, 'ai');
+        }
+
+        chatSendBtn.addEventListener('click', handleSendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSendMessage();
+            }
+        });
+
         // --- PHASE 2: INTERACTIVITY ---
         
         // Mobile menu toggle
@@ -552,4 +653,6 @@
     </script>
 </body>
 </html>
+
+
 
