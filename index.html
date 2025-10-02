@@ -18,11 +18,7 @@
             scroll-behavior: smooth;
         }
         body {
-            background-color: #030712; /* Fallback color */
-            background-image: url('https://i.imgur.com/33i52sS.jpeg'); /* Your new nebula background */
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            background-color: #030712; /* A deep navy blue */
             color: #f9fafb;
             cursor: none; /* Hide the default cursor */
         }
@@ -461,8 +457,8 @@
         async function callGeminiAPI(question, context) {
             // NOTE: This will fail with a 403 error until the API key is configured.
             // The code will fall back to Demo Mode.
-            const apiKey = ""; 
-            if (!apiKey) return null; // Immediately return null if key is missing
+            const apiKey = "AIzaSyAgNqNN7Gd_8goELoUr1IjfR4ycQipW-ic"; 
+            if (!apiKey || apiKey === "AIzaSyAgNqNN7Gd_8goELoUr1IjfR4ycQipW-ic") return null; // Immediately return null if key is missing
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             const systemPrompt = `You are a helpful and professional AI assistant for Santhiya Sasikumar's interactive resume. Based ONLY on the provided JSON data about her, answer the user's question. Do not make up any information. Keep your answers concise. The data is: ${context}`;
