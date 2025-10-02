@@ -432,6 +432,7 @@
             messageElement.textContent = message;
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            return messageElement; // Return the created element
         }
 
         async function callGeminiAPI(question, context) {
@@ -456,12 +457,14 @@
                 });
 
                 if (!response.ok) {
-                    console.error("API Error Response:", await response.text());
-                    return "Sorry, I'm having a little trouble connecting to my brain right now. Please try again in a moment.";
+                    // Provide more detailed error feedback
+                    console.error("API Error Response:", response.status, await response.text());
+                    return `Sorry, I'm having trouble connecting (Error ${response.status}). Please try again later.`;
                 }
 
                 const result = await response.json();
-                return result.candidates[0].content.parts[0].text;
+                // Safe navigation to prevent errors if the response structure is unexpected
+                return result?.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process that request.";
             } catch (error) {
                 console.error("Error calling Gemini API:", error);
                 return "Sorry, an error occurred while trying to get a response.";
@@ -475,8 +478,9 @@
             addMessageToChat(question, 'user');
             chatInput.value = '';
             
-            // Show a typing indicator
-            addMessageToChat("Typing...", 'ai-typing');
+            // Show a typing indicator and give it a unique class
+            const typingIndicator = addMessageToChat("Typing...", 'ai');
+            typingIndicator.classList.add('typing-indicator');
             
             const context = retrieveContext(question);
 
@@ -485,14 +489,14 @@
                 // If context is found, call the LLM
                 aiResponse = await callGeminiAPI(question, context);
             } else {
-                // If no context is found, use the fallback response you wanted
+                // If no context is found, use the fallback response
                 aiResponse = "That's a great question! It seems that's not covered in my current knowledge base, which means it's a new area for Santhiya to explore and add to her resume soon!";
             }
             
-            // Remove typing indicator and show the real response
-            const typingIndicator = Array.from(chatMessages.children).find(child => child.textContent === "Typing...");
-            if (typingIndicator) {
-                typingIndicator.remove();
+            // Remove the specific typing indicator and show the real response
+            const typingIndicatorInChat = chatMessages.querySelector('.typing-indicator');
+            if (typingIndicatorInChat) {
+                typingIndicatorInChat.remove();
             }
             addMessageToChat(aiResponse, 'ai');
         }
