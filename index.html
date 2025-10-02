@@ -100,6 +100,14 @@
             opacity: 1;
             transform: translateY(0);
         }
+        /* Style for links in chat */
+        .chat-link {
+            color: #a5b4fc;
+            text-decoration: underline;
+        }
+        .chat-link:hover {
+            color: #c7d2fe;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-50">
@@ -346,7 +354,9 @@
             "contact": {
                 "email": "santhiyasasikumar0205@gmail.com",
                 "phone": "9994009450",
-                "linkedin": "linkedin.com/in/Santhiya-Sasikumar",
+                "linkedin": "https://linkedin.com/in/Santhiya-Sasikumar",
+                "hackerrank": "https://www.hackerrank.com/profile/santhiyasasikum1",
+                "leetcode": "https://leetcode.com/u/santhiyasasikumar/",
                 "location": "Coimbatore"
             },
             "skills": {
@@ -409,27 +419,46 @@
             const cleanQuestion = question.toLowerCase().replace(/[^\w\s]/g, '');
             const simplifiedQuestion = cleanQuestion.split(/\s+/);
             const dataAsString = JSON.stringify(resumeData).toLowerCase();
-            const hasKeyword = simplifiedQuestion.some(keyword => dataAsString.includes(keyword));
+            
+            // Use word boundary regex for more accurate keyword matching
+            const hasKeyword = simplifiedQuestion.some(keyword => {
+                if (keyword.length < 2) return false; // Avoid matching single letters like 'c'
+                const regex = new RegExp('\\b' + keyword + '\\b');
+                return regex.test(dataAsString);
+            });
+
             if (hasKeyword) {
                 return JSON.stringify(resumeData);
             }
             return null; 
         }
 
-        // IMPROVED Demo Mode function
+        // IMPROVED Demo and Action Mode function
         function getDemoResponse(question) {
              const q = question.toLowerCase();
              
              // Define keyword lists for better matching
              const skillKeywords = ['skill', 'know', 'proficient', 'experience with', 'docker', 'java', 'python', 'c', 'javascript', 'git', 'aws', 'mysql'];
              const projectKeywords = ['project', 'built', 'develop', 'weapon', 'robot', 'iot', 'agriculture'];
-             const contactKeywords = ['contact', 'email', 'phone', 'linkedin', 'reach out'];
+             const contactKeywords = ['contact', 'email', 'phone'];
+             const linkedInPageKeywords = ['linkedin'];
+             const hackerRankPageKeywords = ['hackerrank'];
+             const leetCodePageKeywords = ['leetcode'];
 
-             const foundSkill = skillKeywords.some(kw => q.includes(kw));
-             const foundProject = projectKeywords.some(kw => q.includes(kw));
-             const foundContact = contactKeywords.some(kw => q.includes(kw));
+             const foundSkill = skillKeywords.some(kw => new RegExp('\\b' + kw + '\\b').test(q));
+             const foundProject = projectKeywords.some(kw => new RegExp('\\b' + kw + '\\b').test(q));
+             const foundContact = contactKeywords.some(kw => new RegExp('\\b' + kw + '\\b').test(q));
+             const foundLinkedInPage = linkedInPageKeywords.some(kw => q.includes(kw));
+             const foundHackerRankPage = hackerRankPageKeywords.some(kw => q.includes(kw));
+             const foundLeetCodePage = leetCodePageKeywords.some(kw => q.includes(kw));
 
-             if (foundSkill) {
+             if (foundLinkedInPage) {
+                return `Of course! Here is the link to Santhiya's LinkedIn profile: <a href="${resumeData.contact.linkedin}" target="_blank" class="chat-link">Open LinkedIn</a>`;
+             } else if (foundHackerRankPage) {
+                 return `Absolutely! You can find Santhiya's HackerRank profile here: <a href="${resumeData.contact.hackerrank}" target="_blank" class="chat-link">Open HackerRank</a>`;
+             } else if (foundLeetCodePage) {
+                 return `Here is the link to Santhiya's LeetCode profile: <a href="${resumeData.contact.leetcode}" target="_blank" class="chat-link">Open LeetCode</a>`;
+             } else if (foundSkill) {
                  return "Santhiya is skilled in languages like C, Java, Python, and JavaScript; databases like MySQL; and platforms such as AWS, Git, and Docker.";
              } else if (foundProject) {
                  return "She has worked on several impressive projects, including an IoT Agriculture Monitoring System, an Autonomous Line Follower Robot, and a real-time Weapon Detection Model using deep learning.";
@@ -447,22 +476,22 @@
 
         function addMessageToChat(message, sender) {
             const messageElement = document.createElement('div');
-            messageElement.className = `p-2 rounded-lg max-w-xs ${sender === 'user' ? 'bg-indigo-500 text-white self-end' : 'bg-gray-700 text-gray-200 self-start'}`;
-            messageElement.textContent = message;
+            const bubble = document.createElement('div');
+            bubble.className = `p-2 rounded-lg max-w-xs ${sender === 'user' ? 'bg-indigo-500 text-white self-end' : 'bg-gray-700 text-gray-200 self-start'}`;
+            bubble.innerHTML = message; // Use innerHTML to render links
+            messageElement.appendChild(bubble);
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
             return messageElement;
         }
 
-        async function callGeminiAPI(question, context) {
-            // NOTE: This will fail with a 403 error until the API key is configured.
-            // The code will fall back to Demo Mode.
-            const apiKey = "AIzaSyAgNqNN7Gd_8goELoUr1IjfR4ycQipW-ic"; 
-            if (!apiKey || apiKey === "AIzaSyAgNqNN7Gd_8goELoUr1IjfR4ycQipW-ic") return null; // Immediately return null if key is missing
+        async function callApi(question, systemPrompt, apiKey) {
+            if (!apiKey || apiKey === "PASTE_YOUR_API_KEY_HERE") {
+                console.log("API key is missing, returning null.");
+                return null;
+            }
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-            const systemPrompt = `You are a helpful and professional AI assistant for Santhiya Sasikumar's interactive resume. Based ONLY on the provided JSON data about her, answer the user's question. Do not make up any information. Keep your answers concise. The data is: ${context}`;
-            
             const payload = {
                 contents: [{ parts: [{ text: question }] }],
                 systemInstruction: { parts: [{ text: systemPrompt }] },
@@ -471,18 +500,18 @@
             try {
                 const response = await fetch(apiUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'json' },
                     body: JSON.stringify(payload)
                 });
                 if (!response.ok) {
                     console.error("API Error Response:", response.status, await response.text());
-                    return null; // Return null on API error to trigger demo mode
+                    return null;
                 }
                 const result = await response.json();
                 return result?.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I couldn't process that request.";
             } catch (error) {
-                console.error("Error calling Gemini API:", error);
-                return null; // Return null on network error
+                console.error("Error calling API:", error);
+                return null;
             }
         }
 
@@ -498,24 +527,33 @@
             
             const context = retrieveContext(question);
             let aiResponse;
+            const apiKey = "PASTE_YOUR_API_KEY_HERE";
 
             if (context) {
-                // First, try to call the real API
-                aiResponse = await callGeminiAPI(question, context);
+                // Topic is related to the resume
+                const resumeSystemPrompt = `You are a helpful and professional AI assistant for Santhiya Sasikumar's interactive resume. Based ONLY on the provided JSON data about her, answer the user's question. Do not make up any information. Keep your answers concise. The data is: ${context}`;
+                aiResponse = await callApi(question, resumeSystemPrompt, apiKey);
                 
-                // If the API call fails (returns null), fall back to Demo Mode
+                // If API fails, fall back to smart demo mode
                 if (aiResponse === null) {
                     aiResponse = getDemoResponse(question);
                 }
             } else {
-                aiResponse = "That's a great question! It seems that's not covered in my current knowledge base, which means it's a new area for Santhiya to explore and add to her resume soon!";
+                // Topic is NOT related to the resume, use general knowledge
+                const generalSystemPrompt = `You are a helpful general knowledge assistant. Answer the user's question concisely.`;
+                aiResponse = await callApi(question, generalSystemPrompt, apiKey);
+
+                // If general API call also fails, give final fallback
+                if (aiResponse === null) {
+                     aiResponse = "That's an interesting question! While I can't answer that right now, my expertise is in Santhiya's resume. Try asking me about her skills or projects!";
+                }
             }
             
-            const typingIndicatorInChat = chatMessages.querySelector('.typing-indicator');
+            const typingIndicatorInChat = document.querySelector('.typing-indicator');
             if (typingIndicatorInChat) {
-                typingIndicatorInChat.remove();
+                typingIndicatorInChat.parentElement.remove();
             }
-            // Add a small delay to make the demo mode feel more natural
+            
             setTimeout(() => {
                 addMessageToChat(aiResponse, 'ai');
             }, 500);
@@ -530,7 +568,6 @@
 
         // --- PHASE 2: INTERACTIVITY ---
         
-        // Mobile menu toggle
         const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
         const mobileMenu = document.getElementById('mobile-menu');
         if (mobileMenuToggle && mobileMenu) {
@@ -539,7 +576,6 @@
             });
         }
 
-        // Chatbot UI toggle
         const chatbotToggle = document.getElementById('chatbot-toggle');
         const chatbotPanel = document.getElementById('chatbot-panel');
         const closeChatBtn = document.getElementById('close-chat-btn');
@@ -556,19 +592,10 @@
         window.addEventListener('mousemove', function(e) {
             const posX = e.clientX;
             const posY = e.clientY;
-
             cursorDot.style.left = `${posX}px`;
             cursorDot.style.top = `${posY}px`;
+            cursorOutline.animate({ left: `${posX}px`, top: `${posY}px` }, { duration: 500, fill: "forwards" });
 
-            cursorOutline.style.left = `${posX}px`;
-            cursorOutline.style.top = `${posY}px`;
-
-            cursorOutline.animate({
-                left: `${posX}px`,
-                top: `${posY}px`
-            }, { duration: 500, fill: "forwards" });
-
-            // Create a sparkle
             const sparkle = document.createElement('div');
             sparkle.className = 'spark';
             sparkle.style.left = `${posX}px`;
@@ -576,9 +603,7 @@
             sparkle.style.width = `${Math.random() * 4 + 2}px`;
             sparkle.style.height = sparkle.style.width;
             document.body.appendChild(sparkle);
-            setTimeout(() => {
-                sparkle.remove();
-            }, 500);
+            setTimeout(() => { sparkle.remove(); }, 500);
         });
 
         // 2. Animated Starfield Background
@@ -586,7 +611,6 @@
         if (starfieldCanvas) {
             const ctx = starfieldCanvas.getContext('2d');
             let stars = [];
-            
             function resizeCanvas() {
                 starfieldCanvas.width = starfieldCanvas.offsetWidth;
                 starfieldCanvas.height = starfieldCanvas.offsetHeight;
@@ -601,7 +625,6 @@
                     });
                 }
             }
-
             function drawStars() {
                 ctx.clearRect(0, 0, starfieldCanvas.width, starfieldCanvas.height);
                 ctx.fillStyle = "#ffffff";
@@ -611,7 +634,6 @@
                     ctx.fill();
                 });
             }
-
             function updateStars() {
                 stars.forEach(star => {
                     star.x += star.vx / 1000;
@@ -620,13 +642,11 @@
                     if (star.y < 0 || star.y > starfieldCanvas.height) star.vy = -star.vy;
                 });
             }
-
             function animate() {
                 drawStars();
                 updateStars();
                 requestAnimationFrame(animate);
             }
-            
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
             animate();
@@ -639,17 +659,13 @@
                 const rect = card.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-                
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
-                
-                const rotateX = (y - centerY) / 10; // Adjust divisor for sensitivity
-                const rotateY = (centerX - x) / 10; // Adjust divisor for sensitivity
-                
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
                 card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
                 card.style.boxShadow = `0px 10px 30px rgba(0, 0, 0, 0.3)`;
             });
-
             card.addEventListener('mouseleave', () => {
                 card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
                 card.style.boxShadow = 'none';
@@ -664,18 +680,13 @@
                     entry.target.classList.add('is-visible');
                 }
             });
-        }, {
-            threshold: 0.1
-        });
-
+        }, { threshold: 0.1 });
         sections.forEach(section => {
             observer.observe(section);
         });
-
 
     }); // This closes the DOMContentLoaded listener
     </script>
 </body>
 </html>
-
 
