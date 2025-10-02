@@ -44,6 +44,7 @@
             color: #c7d2fe;
             border: 1px solid rgba(129, 140, 248, 0.4);
         }
+        /* Comet Cursor Styles */
         .cursor-dot, .cursor-outline {
             pointer-events: none;
             position: fixed;
@@ -64,6 +65,19 @@
             height: 40px;
             border: 2px solid #a5b4fc;
             background-color: rgba(129, 140, 248, 0.1);
+        }
+        .spark {
+            position: fixed;
+            background-color: #c7d2fe;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0;
+            animation: sparkle 0.5s forwards;
+        }
+        @keyframes sparkle {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
         }
         .chat-link {
             color: #a5b4fc;
@@ -114,6 +128,7 @@
     </nav>
 
     <section id="about" class="pt-32 pb-16 text-white relative overflow-hidden">
+        <canvas id="starfield" class="absolute top-0 left-0 w-full h-full z-[-1]"></canvas>
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <div>
@@ -221,7 +236,6 @@
         }
 
         async function callApi(question, systemPrompt, apiKey) {
-            // CORRECTED: Use the right model name for the Generative Language API
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             const fullPrompt = `${systemPrompt}\n\nUser Question: ${question}`;
             const payload = { contents: [{ parts: [{ text: fullPrompt }] }] };
@@ -245,9 +259,6 @@
             addMessageToChat(question, 'user');
             chatInput.value = '';
             
-            // =======================================================================
-            // === ✅ This is the only place to paste your key.                     ===
-            // =======================================================================
             const apiKey = "AIzaSyAC6wP-hKaYsEl1pZ-KTgd_xmick-knGek";
 
             if (!apiKey || apiKey === "PASTE_YOUR_API_KEY_HERE") {
@@ -258,11 +269,36 @@
             }
 
             const lowerCaseQuestion = question.toLowerCase();
+            
+            // --- NEW & IMPROVED INTENT DETECTION ---
             if (lowerCaseQuestion.includes('linkedin')) {
-                const linkedInUrl = "https://linkedin.com/in/Santhiya-Sasikumar";
-                const response = `Of course! Here is the link to Santhiya's LinkedIn profile: <a href="${linkedInUrl}" target="_blank" class="chat-link">Click here to open LinkedIn</a>`;
+                const url = "https://linkedin.com/in/Santhiya-Sasikumar";
+                const response = `Of course! Here is the link to Santhiya's LinkedIn profile: <a href="${url}" target="_blank" class="chat-link">Click here to open LinkedIn</a>`;
                 addMessageToChat(response, 'ai');
                 return; 
+            }
+            if (lowerCaseQuestion.includes('email')) {
+                const email = "santhiyasasikumar0205@gmail.com";
+                const response = `You can email Santhiya at: <a href="mailto:${email}" class="chat-link">${email}</a>`;
+                addMessageToChat(response, 'ai');
+                return;
+            }
+            if (lowerCaseQuestion.includes('hackerrank')) {
+                const url = "https://www.hackerrank.com/profile/santhiyasasikum1";
+                const response = `Here is the link to Santhiya's HackerRank profile: <a href="${url}" target="_blank" class="chat-link">Open HackerRank</a>`;
+                addMessageToChat(response, 'ai');
+                return;
+            }
+            if (lowerCaseQuestion.includes('leetcode')) {
+                const url = "https://leetcode.com/u/santhiyasasikumar/";
+                const response = `Here is the link to Santhiya's LeetCode profile: <a href="${url}" target="_blank" class="chat-link">Open LeetCode</a>`;
+                addMessageToChat(response, 'ai');
+                return;
+            }
+            if (lowerCaseQuestion.includes('phone') || lowerCaseQuestion.includes('number')) {
+                const response = "For privacy reasons, Santhiya's phone number is not shared publicly. Please use email or LinkedIn to get in touch!";
+                addMessageToChat(response, 'ai');
+                return;
             }
 
             const typingIndicator = addMessageToChat("Typing...", 'ai');
@@ -312,6 +348,15 @@
                 cursorDot.style.left = `${posX}px`;
                 cursorDot.style.top = `${posY}px`;
                 cursorOutline.animate({ left: `${posX}px`, top: `${posY}px` }, { duration: 500, fill: "forwards" });
+
+                const sparkle = document.createElement('div');
+                sparkle.className = 'spark';
+                sparkle.style.left = `${posX}px`;
+                sparkle.style.top = `${posY}px`;
+                sparkle.style.width = `${Math.random() * 4 + 2}px`;
+                sparkle.style.height = sparkle.style.width;
+                document.body.appendChild(sparkle);
+                setTimeout(() => { sparkle.remove(); }, 500);
             });
         }
 
@@ -354,6 +399,56 @@
                 }
             }
             setTimeout(typeWriter, 500); 
+        }
+
+        const starfieldCanvas = document.getElementById('starfield');
+        if (starfieldCanvas) {
+            const ctx = starfieldCanvas.getContext('2d');
+            let stars = [];
+            
+            function resizeCanvas() {
+                starfieldCanvas.width = window.innerWidth;
+                starfieldCanvas.height = starfieldCanvas.parentElement.offsetHeight;
+                stars = [];
+                for (let i = 0; i < 200; i++) {
+                    stars.push({
+                        x: Math.random() * starfieldCanvas.width,
+                        y: Math.random() * starfieldCanvas.height,
+                        radius: Math.random() * 1.5 + 0.5,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5
+                    });
+                }
+            }
+
+            function drawStars() {
+                ctx.clearRect(0, 0, starfieldCanvas.width, starfieldCanvas.height);
+                ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+                stars.forEach(star => {
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+
+            function updateStars() {
+                stars.forEach(star => {
+                    star.x += star.vx;
+                    star.y += star.vy;
+                    if (star.x < 0 || star.x > starfieldCanvas.width) star.x = Math.random() * starfieldCanvas.width;
+                    if (star.y < 0 || star.y > starfieldCanvas.height) star.y = Math.random() * starfieldCanvas.height;
+                });
+            }
+
+            function animate() {
+                drawStars();
+                updateStars();
+                requestAnimationFrame(animate);
+            }
+
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            animate();
         }
     });
     </script>
