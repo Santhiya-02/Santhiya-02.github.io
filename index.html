@@ -408,7 +408,8 @@
             // A simple keyword-based retriever. For our purpose, if a keyword matches,
             // we'll return the full resume data as context. A more advanced version
             // could return specific sections.
-            const simplifiedQuestion = question.toLowerCase().split(/\s+/);
+            const cleanQuestion = question.toLowerCase().replace(/[^\w\s]/g, ''); // <-- ADDED THIS LINE to remove punctuation
+            const simplifiedQuestion = cleanQuestion.split(/\s+/);
             const dataAsString = JSON.stringify(resumeData).toLowerCase();
             
             const hasKeyword = simplifiedQuestion.some(keyword => dataAsString.includes(keyword));
@@ -657,6 +658,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
