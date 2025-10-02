@@ -18,7 +18,11 @@
             scroll-behavior: smooth;
         }
         body {
-            background-color: #030712; /* A deep navy blue */
+            background-color: #030712; /* Fallback color */
+            background-image: url('https://i.imgur.com/33i52sS.jpeg'); /* Your new nebula background */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: #f9fafb;
             cursor: none; /* Hide the default cursor */
         }
@@ -416,17 +420,27 @@
             return null; 
         }
 
-        // NEW: Demo Mode function
+        // IMPROVED Demo Mode function
         function getDemoResponse(question) {
              const q = question.toLowerCase();
-             if (q.includes('skill')) {
-                 return "Santhiya is skilled in languages like C, Java, Python, and JavaScript, databases like MySQL, and platforms such as AWS, Git, and Docker.";
-             } else if (q.includes('project')) {
-                 return "She has worked on several projects, including an IoT Agriculture Monitoring System, an Autonomous Line Follower Robot, and a Weapon Detection Model using deep learning.";
-             } else if (q.includes('contact') || q.includes('email')) {
-                 return "You can contact Santhiya via email at santhiyasasikumar0205@gmail.com or connect on LinkedIn.";
+             
+             // Define keyword lists for better matching
+             const skillKeywords = ['skill', 'know', 'proficient', 'experience with', 'docker', 'java', 'python', 'c', 'javascript', 'git', 'aws', 'mysql'];
+             const projectKeywords = ['project', 'built', 'develop', 'weapon', 'robot', 'iot', 'agriculture'];
+             const contactKeywords = ['contact', 'email', 'phone', 'linkedin', 'reach out'];
+
+             const foundSkill = skillKeywords.some(kw => q.includes(kw));
+             const foundProject = projectKeywords.some(kw => q.includes(kw));
+             const foundContact = contactKeywords.some(kw => q.includes(kw));
+
+             if (foundSkill) {
+                 return "Santhiya is skilled in languages like C, Java, Python, and JavaScript; databases like MySQL; and platforms such as AWS, Git, and Docker.";
+             } else if (foundProject) {
+                 return "She has worked on several impressive projects, including an IoT Agriculture Monitoring System, an Autonomous Line Follower Robot, and a real-time Weapon Detection Model using deep learning.";
+             } else if (foundContact) {
+                 return "You can contact Santhiya via email at santhiyasasikumar0205@gmail.com or connect with her on LinkedIn.";
              } else {
-                 return "That's a great question! I'm currently running in demo mode, but I'd be happy to talk about her skills, projects, or experience.";
+                 return "While I can't answer that, I am an expert on Santhiya's resume. Feel free to ask about her skills, internships, or projects!";
              }
         }
 
