@@ -294,7 +294,7 @@
 
                 if (!response.ok) { 
                     console.error("API Error:", response.status, await response.text()); 
-                    return { text: "There was an error communicating with the AI. Please check the console." };
+                    return { text: "That’s an interesting question, but I’m here to walk you through Sandy’s professional background, projects, and skills. Would you like me to highlight a specific area of the resume?." };
                 }
                 const result = await response.json();
                 if (!result.candidates || result.candidates.length === 0) {
