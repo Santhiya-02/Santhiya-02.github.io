@@ -1,166 +1,87 @@
 /**
- * Netlify Function: Gemini API Proxy
- * Protects API keys by proxying requests to Google Gemini API
+ * Netlify Function: Gemini API Proxy for Resume Chatbot
  */
 
-const fetch = require('node-fetch');
+// Use the official Google AI library
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-exports.handler = async (event, context) => {
+// --- START: PASTE YOUR RESUME DATA HERE ---
+const resumeData = `
+Santhiya Sasikumar
+Software Developer
+
+SUMMARY
+A highly motivated and detail-oriented developer...
+(etc... paste your full resume content here)
+`;
+// --- END: RESUME DATA ---
+
+// This is our single, clean system prompt with the resume data included.
+const systemPrompt = `You are Santhiya's expert resume assistant. Your sole purpose is to answer questions based ONLY on the resume content provided below. Before you answer, you MUST perform the following evaluation steps:
+
+**EVALUATION STEPS:**
+1.  **Relevance Check:** Is the user's question about Santhiya's skills, experience, or qualifications mentioned in the resume?
+    * If YES, proceed to the next step.
+    * If NO, you must stop immediately and respond with: "I can only answer questions about Santhiya's resume."
+
+2.  **Factual Grounding Check:** Can the answer be formed using ONLY the text from the resume provided?
+    * If YES, formulate a concise answer based strictly on the text.
+    * If NO, do not infer or invent information. Respond with: "That information is not available in the provided resume."
+
+3.  **Persona Check:** Ensure your final response is professional, helpful, and direct.
+
+Strictly adhere to these evaluation steps. Do not break character or deviate from these rules.
+
+Here is the resume:
+---
+${resumeData}
+---
+`;
+
+exports.handler = async (event) => {
     // Only allow POST requests
     if (event.httpMethod !== 'POST') {
-        return {
-            statusCode: 405,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Methods': 'POST, OPTIONS'
-            },
-            body: JSON.stringify({ error: 'Method not allowed' })
-        };
-    }
-
-    // Handle CORS preflight
-    if (event.httpMethod === 'OPTIONS') {
-        return {
-            statusCode: 200,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'Content-Type',
-                'Access-Control-Allow-Methods': 'POST, OPTIONS'
-            },
-            body: ''
-        };
+        return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
     try {
-        // Get API key from environment variables
         const apiKey = process.env.GEMINI_API_KEY;
-        
         if (!apiKey) {
-            console.error('GEMINI_API_KEY not found in environment variables');
-            return {
-                statusCode: 500,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ error: 'API key not configured' })
-            };
+            console.error('GEMINI_API_KEY not found.');
+            return { statusCode: 500, body: JSON.stringify({ error: 'API key not configured' }) };
         }
 
-        // Parse request body
-        const requestBody = JSON.parse(event.body);
-        const { message, context } = requestBody;
-
+        const { message } = JSON.parse(event.body);
         if (!message) {
-            return {
-                statusCode: 400,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ error: 'Message is required' })
-            };
+            return { statusCode: 400, body: JSON.stringify({ error: 'Message is required' }) };
         }
 
-        // Construct the prompt with context
-        const systemPrompt = `You are a helpful and professional AI assistant answering questions about a software engineer's resume. Your goal is to help recruiters and potential employers understand the candidate's skills, experience, and qualifications.
-
-IMPORTANT RULES:
-1. You MUST use ONLY the information provided in the resume context below
-2. Do not make up any information or answer questions that are not related to this resume
-3. If the answer is not in the context, politely say "I can only answer questions based on the information in the resume"
-4. Be professional, concise, and helpful
-5. When discussing specific technologies or experiences, reference the actual details from the resume
-6. If asked about contact information, direct them to the contact section
-
-Resume Context:
----
-${context || 'No specific context provided'}
----
-
-User Question: ${message}
-
-Please provide a helpful and accurate response based on the resume information above.`;
-
-        // Call Gemini API
-        const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        text: systemPrompt
-                    }]
-                }],
-                generationConfig: {
-                    temperature: 0.7,
-                    topK: 40,
-                    topP: 0.95,
-                    maxOutputTokens: 500,
-                },
-                safetySettings: [
-                    {
-                        category: "HARM_CATEGORY_HARASSMENT",
-                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                    },
-                    {
-                        category: "HARM_CATEGORY_HATE_SPEECH",
-                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                    },
-                    {
-                        category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                    },
-                    {
-                        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
-                    }
-                ]
-            })
+        // Initialize the Google AI client
+        const genAI = new GoogleGenerativeAI(apiKey);
+        
+        // Get the model and apply our system prompt
+        const model = genAI.getGenerativeModel({
+            model: "gemini-pro",
+            systemInstruction: systemPrompt,
         });
 
-        if (!geminiResponse.ok) {
-            const errorText = await geminiResponse.text();
-            console.error('Gemini API error:', errorText);
-            return {
-                statusCode: 500,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ error: 'Failed to get response from AI service' })
-            };
-        }
-
-        const geminiData = await geminiResponse.json();
-        
-        // Extract the response text
-        const responseText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
+        // Generate content based on the user's message
+        const result = await model.generateContent(message);
+        const response = result.response;
+        const responseText = response.text();
 
         return {
             statusCode: 200,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                response: responseText,
-                usage: geminiData.usageMetadata || null
-            })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ response: responseText }),
         };
 
     } catch (error) {
-        console.error('Error in gemini-proxy function:', error);
+        console.error('Error in function:', error);
         return {
             statusCode: 500,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ error: 'Internal server error' })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ error: 'Internal server error' }),
         };
     }
 };
