@@ -8,11 +8,64 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 // --- START: PASTE YOUR RESUME DATA HERE ---
 const resumeData = `
 Santhiya Sasikumar
-Software Developer
+Coimbatore
+santhiyasasikumar0205@gmail.com | 9994009450 | https://www.linkedin.com/in/santhiya-sasikumar-bb5614297
 
-SUMMARY
-A highly motivated and detail-oriented developer...
-(etc... paste your full resume content here)
+Profile Summary
+Santhiya is a Computer Science Engineering student with proficient skills in programming, problem-solving, Java, and C. She has a passion for technology-driven solutions and is looking for an internship to apply her knowledge.
+
+Technical Skills
+Languages: C, Java, Python, javascript
+Database: MySQL
+Frontend: HTML, CSS
+Platforms: AWS, Cloud
+
+Education
+KPR Institute of Engineering and Technology (2023-2027)
+BE in Computer Science and Engineering
+CGPA: 8.7/10
+
+G. Ramaswamy Naidu MHSS (2022-2023)
+HSC, Percentage: 92.8%
+
+Experience
+Java Development Intern - OctaNet Solutions (Jan 2025-Feb 2025)
+Developed Java applications and REST APIs with MySQL.
+Utilized Spring Boot, Git, and Agile methodologies.
+
+IoT Intern - Enthu Technology Solutions (Dec 2024 - Jan 2025)
+Constructed IoT solutions including Smart Irrigation and Air Quality Monitoring.
+Worked with microcontrollers, sensors, and automation.
+
+Projects
+IoT-Based Agriculture Monitoring System
+Created an ESP32-based system for monitoring soil, temperature, and humidity.
+Enabled automated irrigation and real-time cloud monitoring.
+
+Autonomous Line Follower Robot
+Built a robot for path tracking using IR sensors and motor drivers.
+Implemented PID-based control to ensure smooth navigation.
+
+Weapon Detection Model
+Developed a real-time weapon detection system using deep learning (YOLOv8/Computer Vision) to identify firearms and sharp objects from surveillance feeds, enhancing security and threat response.
+
+Certifications
+Introduction to Web Development - Coursera (Nov 2024)
+Introduction to Java - Coursera (Mar 2025)
+Prompt Design in Vertex AI - Google Cloud (Aug 2024)
+Develop GenAI Apps with Gemini and Streamlit - Google Cloud (May 2024)
+CCNA Introduction to Networks - Cisco (Nov 2024)
+
+Achievements
+Scored 92.8% in HSC exams, served as School Pupil Leader, solved 100+ LeetCode problems.
+
+Coding Profiles:
+HackerRank: hackerrank.com/santhiyasasikum1
+LeetCode: leetcode.com/santhiyasasikumar
+
+Additional Information
+Languages: English, Tamil, and basic knowledge of Hindi, German, and Sanskrit.
+Interests: Badminton and Gardening
 `;
 // --- END: RESUME DATA ---
 
@@ -39,7 +92,6 @@ ${resumeData}
 `;
 
 exports.handler = async (event) => {
-    // Only allow POST requests
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
@@ -47,7 +99,6 @@ exports.handler = async (event) => {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) {
-            console.error('GEMINI_API_KEY not found.');
             return { statusCode: 500, body: JSON.stringify({ error: 'API key not configured' }) };
         }
 
@@ -56,16 +107,12 @@ exports.handler = async (event) => {
             return { statusCode: 400, body: JSON.stringify({ error: 'Message is required' }) };
         }
 
-        // Initialize the Google AI client
         const genAI = new GoogleGenerativeAI(apiKey);
-        
-        // Get the model and apply our system prompt
         const model = genAI.getGenerativeModel({
             model: "gemini-pro",
             systemInstruction: systemPrompt,
         });
 
-        // Generate content based on the user's message
         const result = await model.generateContent(message);
         const response = result.response;
         const responseText = response.text();
